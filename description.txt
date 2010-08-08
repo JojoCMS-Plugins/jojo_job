@@ -1,0 +1,1 @@
+A comprehensive plugin for writing job listings.
