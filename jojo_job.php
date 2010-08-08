@@ -202,11 +202,9 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
                 'body' => 'jb_body',
                 'url' => 'url',
                 'date' => 'date',
-                'datetype' => 'unix',
-                'snip' => (Jojo::getOption('job_full_rss_description') == 'yes' ? 'full' : Jojo::getOption('job_rss_truncate', 800)),
-                'sourcelink' => (boolean)(Jojo::getOption('job_feed_source_link') == 'yes')
+                'datetype' => 'unix'
             );
-            $items = array_slice($jobs, 0, Jojo::getOption('job_rss_num_jobs', 15));
+            $items = array_slice($jobs, 0, Jojo::getOption('rss_num_items', 15));
             Jojo::getFeed($items, $rssfields);
         }
 
@@ -307,7 +305,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
             /* Ensure the tags class is available */
             if (class_exists('Jojo_Plugin_Jojo_Tags')) {
                 /* Split up tags for display */
-                $tags = Jojo_Plugin_Jojo_Tags::getTags('jojo_job', $jobid);
+                $tags = Jojo_Plugin_Jojo_Tags::getTags('jojo_job', $id);
                 $smarty->assign('tags', $tags);
 
                 /* generate tag cloud of tags belonging to this job */
@@ -319,7 +317,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
                 /* get related jobs if tags plugin installed and option enabled */
                 $numrelated = Jojo::getOption('job_num_related');
                 if ($numrelated) {
-                    $related = Jojo_Plugin_Jojo_Tags::getRelated('jojo_job', $jobid, $numrelated, 'jojo_job'); //set the last argument to 'jojo_job' to restrict results to only jobs
+                    $related = Jojo_Plugin_Jojo_Tags::getRelated('jojo_job', $id, $numrelated, 'jojo_job'); //set the last argument to 'jojo_job' to restrict results to only jobs
                     $smarty->assign('related', $related);
                 }
             }
@@ -788,7 +786,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
     static function rssicon($data)
     {
         global $page;
-        $link = Jojo::getOption('job_external_rss');
+        $link = Jojo::getOption('rss_external_url');
         if ($link) {
             $data['jobs'] =  $link;
         }
