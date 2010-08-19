@@ -17,6 +17,7 @@ $query = "
       `category` int(11) NOT NULL default '0',
       `language` varchar(10) NOT NULL default '',
       `date` int(11) NOT NULL default '0',
+      `filled` tinyint(1) NOT NULL default '0',
       `jb_image` varchar(255) NOT NULL default '',
       `jb_livedate` int(11) NOT NULL default '0',
       `jb_expirydate` int(11) NOT NULL default '0',
@@ -70,8 +71,10 @@ $query = "
     CREATE TABLE {jobcategory} (
       `jobcategoryid` int(11) NOT NULL auto_increment,
       `sortby` enum('jb_title asc','jb_date desc','jb_livedate desc') NOT NULL default 'jb_date desc',
+      `type` enum('normal','parent','index') NOT NULL default 'normal',
      `jc_url` varchar(255) NOT NULL default '',
      `pageid` int(11) NOT NULL default '0',
+     `filledmessage` varchar(255) NOT NULL default '',
       `rsslink` tinyint(1) default '1',
       `thumbnail` varchar(255) NOT NULL default '',
       PRIMARY KEY  (`jobcategoryid`),

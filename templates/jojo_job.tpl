@@ -56,11 +56,14 @@
 {foreach from=$jobs item=job}
 <div class="joblisting">
 {if $job.jb_image}<a href="{$job.url}" title="{$job.jb_title}"><img src="images/150/jobs/{$job.jb_image}" class="left-image-small" alt="{$job.jb_title}" /></a>{/if}
-<h4><a href="{$job.url}" title="{$job.jb_title}">{$job.jb_title}</a>{if $job.location} - {$job.location}{/if}</h4>
+<h4>{if $job.filled}{$job.jb_title}{else}<a href="{$job.url}" title="{$job.jb_title}">{$job.jb_title}</a>{/if}{if $job.location} - {$job.location}{/if}{if $job.filled && $job.filledmessage} <span class="filled">{if $job.filledmessage}{$job.filledmessage}{else}Position Filled{/if}</span>{/if}</h4>
   <p>{if $job.description}{$job.description}{else}{$job.bodyplain|truncate:400}{/if}</p>
+{if $job.filled}
+{else}
   <p><a href="{$job.url}" title="View full listing" rel="nofollow">View full listing</a></p>
   <p class="date">Added: {$job.dateadded} <br />
   {if $job.jb_expirydate !=0}Applications Close: {$job.datecloses}{/if}</p>
+{/if}
 </div>
 {/foreach}
 <div class="jobs-pagination">

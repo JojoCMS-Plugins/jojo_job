@@ -22,7 +22,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
 {
 
     /* Gets $num items sorted by startdate (asc) for use on homepages and sidebars */
-    static function getItems($num=false, $start = 0, $categoryid='all', $sortby='jb_date desc', $exclude=false, $include=false) {
+    static function getItems($num=false, $start = 0, $categoryid='all', $sortby='jb_date desc', $exclude=false, $include=false, $filled=false) {
         global $page;
         $now = time();
         $language = _MULTILANGUAGE ? (!empty($page->page['pg_language']) ? $page->page['pg_language'] : Jojo::getOption('multilanguage-default', 'en')) : '';
@@ -34,15 +34,14 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
         /* if calling page is an job, Get current job, exclude from the list and up the limit by one */
         $exclude = ($exclude && Jojo::getOption('job_sidebar_exclude_current', 'no')=='yes' && $page->page['pg_link']=='jojo_plugin_jojo_job' && Jojo::getFormData('id')) ? Jojo::getFormData('id') : '';
         if ($num && $exclude) $num++;
-        $query  = "SELECT i.*, c.*, p.pageid, pg_menutitle, pg_title, pg_url, pg_status, pg_language";
+        $query  = "SELECT i.*, c.*, p.pageid, pg_menutitle, pg_title, pg_url, pg_status, pg_language, pg_livedate, pg_expirydate";
         $query .= " FROM {job} i";
         $query .= " LEFT JOIN {jobcategory} c ON (i.category=c.jobcategoryid) LEFT JOIN {page} p ON (c.pageid=p.pageid)";
         $query .= " WHERE 1" . $categoryquery;
-        $query .= " AND jb_expirydate<$now";
         $query .= (_MULTILANGUAGE && $categoryid == 'all' && $include != 'alllanguages') ? " AND (pg_language = '$language')" : '';
         $query .= $num ? " ORDER BY $sortby LIMIT $start,$num" : '';
         $items = Jojo::selectQuery($query);
-        $items = self::cleanItems($items, $exclude);
+        $items = self::cleanItems($items, $exclude, $include, $filled);
         if (!$num)  $items = self::sortItems($items, $sortby);
         return $items;
     }
@@ -59,13 +58,12 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
     }
 
     /* clean items for output */
-    static function cleanItems($items, $exclude=false) {
+    static function cleanItems($items, $exclude=false, $include=false, $filled=false) {
         global $_USERGROUPS;
         $now    = time();
-        $pagePermissions = new JOJO_Permissions();
         foreach ($items as $k=>&$i){
-            $pagePermissions->getPermissions('page', $i['pageid']);
-            if (!$pagePermissions->hasPerm($_USERGROUPS, 'view') || $i['jb_livedate']>$now || (!empty($i['jb_expirydate']) && $i['jb_expirydate']<$now) || (!empty($i['jobid']) && $i['jobid']==$exclude)  || (!empty($i['jb_url']) && $i['jb_url']==$exclude) || $i['pg_status']=='inactive') {
+            $pagedata = Jojo_Plugin_Core::cleanItems(array($i), $include);
+            if (!$pagedata || $i['jb_livedate']>$now || (!empty($i['jb_expirydate']) && $i['jb_expirydate']<$now) || (!empty($i['jobid']) && $i['jobid']==$exclude)  || (!empty($i['jb_url']) && $i['jb_url']==$exclude) || (!$filled && $i['filled'])) {
                 unset($items[$k]);
                 continue;
             }
@@ -192,7 +190,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
         }
         $sortby = $categorydata ? $categorydata['sortby'] : '';
         
-        $jobs = self::getItems('', '', $categoryid, $sortby);
+        $jobs = self::getItems('', '', $categoryid, $sortby, '', '', $filled=true);
 
         if ($action == 'rss') {
             $rssfields = array(
@@ -400,19 +398,10 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
     static function getPluginPages($for=false, $language=false)
     {
         $items =  Jojo::selectQuery("SELECT c.*, p.pageid, pg_title, pg_url, pg_language, pg_livedate, pg_expirydate, pg_status, pg_sitemapnav, pg_xmlsitemapnav  FROM {jobcategory} c LEFT JOIN {page} p ON (c.pageid=p.pageid) ORDER BY pg_language, pg_parent");
-        $now    = time();
-        global $_USERGROUPS;
-        $pagePermissions = new JOJO_Permissions();
+        // use core function to clean out any pages based on permission, status, expiry etc
+        $items =  Jojo_Plugin_Core::cleanItems($items, $for);
         foreach ($items as $k=>&$i){
-            $pagePermissions->getPermissions('page', $i['pageid']);
-            if (!$pagePermissions->hasPerm($_USERGROUPS, 'view') || $i['pg_livedate']>$now || (!empty($i['pg_expirydate']) && $i['pg_expirydate']<$now) || $i['pg_status']=='inactive' || ($language && $i['pg_language']!=$language) ) {
-                unset($items[$k]);
-                continue;
-            }
-            if ($for && $for =='sitemap' && $i['pg_sitemapnav']=='no') {
-                unset($items[$k]);
-                continue;
-            } elseif ($for && $for =='xmlsitemap' && $i['pg_xmlsitemapnav']=='no') {
+            if ($language && $i['pg_language']!=$language) {
                 unset($items[$k]);
                 continue;
             }

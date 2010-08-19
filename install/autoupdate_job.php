@@ -142,6 +142,16 @@ $default_fd[$table][$field]['fd_help'] = 'The body of the job in HTML. Try to su
 $default_fd[$table][$field]['fd_mode'] = 'advanced';
 $default_fd[$table][$field]['fd_tabname'] = 'Content';
 
+// Position Filled
+$default_fd[$table]['filled'] = array(
+        'fd_name' => "Position Filled",
+        'fd_type' => "yesno",
+        'fd_readonly' => "0",
+        'fd_default' => "0",
+        'fd_order' => $o++,
+        'fd_tabname' => "Content",
+    );
+
 //Contact Email
 $field = 'jb_contact';
 $default_fd[$table][$field]['fd_order'] = $o++;
@@ -313,13 +323,33 @@ $default_fd[$table]['pageid'] = array(
 // PageURL Field
 $default_fd[$table]['jc_url'] = array(
         'fd_name' => "URL",
-        'fd_type' => "internalurl",
-        'fd_readonly' => "1",
+        'fd_type' => "hidden",
+        'fd_required' => 'no',
         'fd_help' => "The page on the site used for this category.",
         'fd_order' => $o++,
         'fd_tabname' => "Content",
     );
 
+// Type Field
+$default_fd[$table]['type'] = array(
+        'fd_name' => "Type",
+        'fd_type' => "radio",
+        'fd_options' => "normal:Normal\nparent:Parent\nindex:All Jobs",
+        'fd_readonly' => "0",
+        'fd_default' => "normal",
+        'fd_order' => $o++,
+        'fd_tabname' => "Content",
+    );
+
+// Filled Message
+$default_fd[$table]['filledmessage'] = array(
+        'fd_name' => "Filled Message",
+        'fd_type' => "text",
+        'fd_required' => 'no',
+        'fd_help' => "The text to display on filled positions.",
+        'fd_order' => $o++,
+        'fd_tabname' => "Content",
+    );
 
 // Sortby Field
 $default_fd[$table]['sortby'] = array(
