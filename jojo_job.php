@@ -47,7 +47,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
     }
 
     static function getItemsById($ids = false, $sortby='jb_date desc') {
-        $query  = "SELECT i.*, c.*, p.pageid, pg_menutitle, pg_title, pg_url, pg_status, pg_language";
+        $query  = "SELECT i.*, c.*, p.pageid, pg_menutitle, pg_title, pg_url, pg_status, pg_language, pg_livedate, pg_expirydate";
         $query .= " FROM {job} i";
         $query .= " LEFT JOIN {jobcategory} c ON (i.category=c.jobcategoryid) LEFT JOIN {page} p ON (c.pageid=p.pageid)";
         $query .=  is_array($ids) ? " WHERE jobid IN ('". implode("',' ", $ids) . "')" : " WHERE jobid=$ids";
@@ -397,7 +397,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
 
     static function getPluginPages($for=false, $language=false)
     {
-        $items =  Jojo::selectQuery("SELECT c.*, p.pageid, pg_title, pg_url, pg_language, pg_livedate, pg_expirydate, pg_status, pg_sitemapnav, pg_xmlsitemapnav  FROM {jobcategory} c LEFT JOIN {page} p ON (c.pageid=p.pageid) ORDER BY pg_language, pg_parent");
+        $items =  Jojo::selectQuery("SELECT c.*, p.pageid, pg_title, pg_menutitle, pg_url, pg_language, pg_livedate, pg_expirydate, pg_status, pg_sitemapnav, pg_xmlsitemapnav  FROM {jobcategory} c LEFT JOIN {page} p ON (c.pageid=p.pageid) ORDER BY pg_language, pg_parent");
         // use core function to clean out any pages based on permission, status, expiry etc
         $items =  Jojo_Plugin_Core::cleanItems($items, $for);
         foreach ($items as $k=>&$i){
