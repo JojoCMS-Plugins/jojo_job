@@ -804,7 +804,7 @@ class Jojo_Plugin_Jojo_job extends Jojo_Plugin
             'primaryfields' => 'jb_title, jb_location',
             'secondaryfields' => 'jb_title, jb_desc, jb_body, jb_location',
         );
-        $rawresults =  Jojo_Plugin_Jojo_search::searchPlugin($searchfields, $keywords, $language, $booleankeyword_str=false);
+        $rawresults =  Jojo_Plugin_Jojo_search::searchPlugin($searchfields, $keywords, $language, $booleankeyword_str);
         $data = $rawresults ? self::getItemsById(array_keys($rawresults)) : '';
         if ($data) {
             foreach ($data as $result) {
